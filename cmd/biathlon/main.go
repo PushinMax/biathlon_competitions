@@ -1,7 +1,18 @@
 package main
 
-import "fmt"
+import (
+	"biathlon/internal/handler"
+	"biathlon/internal/service"
+	"fmt"
+)
 
 func main() {
-	fmt.Println(123)
+	fileName := "configs/events"
+
+	service := service.New()
+	handler := handler.New(service, fileName)
+	
+	if err := handler.Start(); err != nil {
+		fmt.Println(err)
+	}
 }
