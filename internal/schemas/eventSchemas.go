@@ -1,7 +1,11 @@
 package schemas
 
 
-import "time"
+import (
+	"time"
+	"io/ioutil"
+	"encoding/json"
+)
 
 type Event struct {
     Time     time.Time
@@ -9,6 +13,8 @@ type Event struct {
     CompetitorID int
     Params   []string
 }
+
+var TimeFormat = "15:04:05.000"
 
 type Config struct {
     Laps        int    `json:"laps"`
@@ -18,3 +24,11 @@ type Config struct {
     Start       string `json:"start"`
     StartDelta  string `json:"startDelta"`
 }
+
+func LoadConfig(path string) Config {
+    file, _ := ioutil.ReadFile(path)
+    var config Config
+    json.Unmarshal(file, &config)
+    return config
+}
+

@@ -5,6 +5,7 @@ import (
 	"biathlon/internal/service"
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -29,7 +30,20 @@ func (h *FileHandler) Start() error {
 	if err != nil {
 		return err
 	}
-	fmt.Print(events)
+	for _, event := range events {
+		msg, err := h.service.Execute(&event)
+		if err != nil {
+			log.Fatal(err.Error())
+			
+		}
+		log.Println(msg)
+	}
+	report, err := h.service.GetResults()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	log.Println(report)
+	//log.Print(1)
 	return nil
 }
 
@@ -58,7 +72,7 @@ func (h * FileHandler) parseFile() ([]schemas.Event, error) {
         }
 
         timeStr := strings.TrimPrefix(parts[0], "[")
-        eventTime, err := time.Parse("15:04:05.000", timeStr)
+        eventTime, err := time.Parse(schemas.TimeFormat, timeStr)
         if err != nil {
             return nil, fmt.Errorf("invalid time format at line %d: %v", lineNum, err)
         }
@@ -97,5 +111,4 @@ func (h * FileHandler) parseFile() ([]schemas.Event, error) {
     }
 
     return events, scanner.Err()
-
 }

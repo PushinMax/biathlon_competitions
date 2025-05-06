@@ -2,6 +2,7 @@ package main
 
 import (
 	"biathlon/internal/handler"
+	"biathlon/internal/repository"
 	"biathlon/internal/service"
 	"fmt"
 )
@@ -9,7 +10,8 @@ import (
 func main() {
 	fileName := "configs/events"
 
-	service := service.New()
+	repo := repository.New("configs/config.json")
+	service := service.New(repo)
 	handler := handler.New(service, fileName)
 	
 	if err := handler.Start(); err != nil {
