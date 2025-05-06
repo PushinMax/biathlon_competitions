@@ -174,3 +174,59 @@ func TestRepo_EndLap(t *testing.T) {
 	}
 }
 
+
+func TestRepo_PenaltyLapsFlow(t *testing.T) {
+	repo := New("test_config.json")
+	startTime := time.Now()
+	penaltyStart := startTime.Add(10 * time.Minute)
+	repo.RegisteredCompetitor(1)
+	repo.SetStartTime(1, startTime)
+	repo.StartComp(1, startTime)
+	repo.StartRange(1, 1)
+	repo.Hit(1, 1)
+	repo.LeftRange(1) 
+
+	t.Run("Start penalty laps", func(t *testing.T) {
+		err := repo.StartPenatlyLaps(1, penaltyStart)
+		if err != nil {
+			t.Errorf("StartPenatlyLaps() error = %v", err)
+		}
+
+		if !repo.table[1].StartPenaltyLaps.Equal(penaltyStart) {
+			t.Errorf("StartPenaltyLaps not set correctly")
+		}
+	})
+
+}
+
+func TestRepo_Termination(t *testing.T) {
+	repo := New("test_config.json")
+	startTime := time.Now()
+
+	repo.RegisteredCompetitor(1)
+	repo.SetStartTime(1, startTime)
+	repo.StartComp(1, startTime)
+
+	t.Run("Terminate competitor", func(t *testing.T) {
+		err := repo.Termination(1, "Injury")
+		if err != nil {
+			t.Errorf("Termination() error = %v", err)
+		}
+
+		comp := repo.table[1]
+		if comp.StatusFlag != 5 {
+			t.Errorf("StatusFlag not set to 5 (disqualified)")
+		}
+		if comp.Status != "Injury" {
+			t.Errorf("Status = %s, want 'Injury'", comp.Status)
+		}
+	})
+
+	t.Run("Terminate already terminated competitor", func(t *testing.T) {
+		err := repo.Termination(1, "Injury")
+		if err == nil {
+			t.Errorf("Expected error when terminating already terminated competitor")
+		}
+	})
+}
+
