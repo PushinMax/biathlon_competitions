@@ -5,6 +5,10 @@ COVERAGE_FILE=coverage.out
 COVERAGE_HTML=coverage.html
 TEST_FLAGS=-v -race
 
+
+DEFAULT_EVENTS_PATH=configs/events
+DEFAULT_CONFIG_PATH=configs/config.json
+
 .PHONY: all test test-cover cover clean
 
 all: test build
@@ -25,6 +29,13 @@ cover-view:
 
 build:
 	$(GO) build $(GOFLAGS) -o $(BINARY_NAME) ./cmd/...
+
+
+run:
+	$(GO) run $(GOFLAGS) ./cmd/... -event=$(DEFAULT_EVENTS_PATH) -config=$(DEFAULT_CONFIG_PATH)
+
+run-custom:
+	$(GO) run $(GOFLAGS) ./cmd/... -event=$(EVENT) -config=$(CONFIG)	
 
 clean:
 	$(GO) clean

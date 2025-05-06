@@ -7,7 +7,6 @@ import (
 
 
 func (repo *Repo) StartLine(id int) error {
-    // придумать логику
     return nil
 }
 
