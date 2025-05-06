@@ -34,7 +34,6 @@ func (h *FileHandler) Start() error {
 		msg, err := h.service.Execute(&event)
 		if err != nil {
 			log.Fatal(err.Error())
-			
 		}
 		log.Println(msg)
 	}
@@ -42,8 +41,7 @@ func (h *FileHandler) Start() error {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	log.Println(report)
-	//log.Print(1)
+	fmt.Println(report)
 	return nil
 }
 

@@ -20,7 +20,6 @@ func New(repo *repository.Repo) *Service {
 }
 
 func (s *Service) Execute(event *schemas.Event) (string, error) {
-
 	switch event.EventID {
 	case 1:
 		err := s.repo.RegisteredCompetitor(event.CompetitorID)
@@ -29,7 +28,7 @@ func (s *Service) Execute(event *schemas.Event) (string, error) {
 	case 2:
 		time, err := time.Parse(schemas.TimeFormat, event.Params[0])
 		if err != nil {
-			//
+			return "", err
 		}
 		err = s.repo.SetStartTime(event.CompetitorID, time)
 		return fmt.Sprintf("[%s] The start time for the competitor(%d) was set by a draw to %s", 
@@ -45,7 +44,7 @@ func (s *Service) Execute(event *schemas.Event) (string, error) {
 	case 5:
 		num, err := strconv.Atoi(event.Params[0])
 		if err != nil {
-			//
+			return "", err
 		}
 		err = s.repo.StartRange(event.CompetitorID, num)
 		return fmt.Sprintf("[%s] The competitor(%d) is on the firing range(%d)", 
@@ -55,7 +54,7 @@ func (s *Service) Execute(event *schemas.Event) (string, error) {
 	case 6:
 		num, err := strconv.Atoi(event.Params[0])
 		if err != nil {
-			//
+			return "", err
 		}
 		err = s.repo.Hit(event.CompetitorID, num)
 		return fmt.Sprintf("[%s] The target(%d) has been hit by competitor(%d)", 
@@ -83,7 +82,7 @@ func (s *Service) Execute(event *schemas.Event) (string, error) {
 		return fmt.Sprintf("[%s] The competitor(%d) can`t continue: %s", 
 			event.Time.Format(schemas.TimeFormat), event.CompetitorID, comment), err
 	}
-	return "", nil
+	return "", fmt.Errorf("unknown event")
 }
 
 func (s *Service) GetResults() (string, error) {

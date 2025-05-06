@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 	"sort"
+	"log"
 )
 
 func (repo *Repo) GetReport() (string, error) {
-	//fmt.Println(*repo.table[1])
 	competitors := make([]struct{
 		id int
 		t time.Duration
@@ -22,11 +22,18 @@ func (repo *Repo) GetReport() (string, error) {
 		})
 	}
 	sort.Slice(competitors, func(i, j int) bool {
+		if competitors[i].t == 0 {
+			return false
+		}
 		return competitors[i].t < competitors[j].t
 	})
 
 	var builder strings.Builder
-	for i, comp := range repo.table {
+	for i, c := range competitors {
+		comp, ok := repo.table[c.id]
+		if !ok {
+			log.Fatal("1111")
+		}
 		var laps strings.Builder
 		for i, v := range comp.Laps {
 			if v == 0 {
@@ -40,7 +47,7 @@ func (repo *Repo) GetReport() (string, error) {
 				formatDuration(v),
 				fmt.Sprintf("%.3f", float64(repo.cfg.LapLen) / v.Seconds()),
 			))
-			if i != len(comp.Laps) {
+			if i != len(comp.Laps) - 1 {
 				laps.WriteString(", ")
 			}
 		}
@@ -56,14 +63,27 @@ func (repo *Repo) GetReport() (string, error) {
 			totalTime = formatDuration(comp.TotalTime)
 		}
 
+		var penaltyTime string
+		if comp.PenaltyTime == 0 {
+			penaltyTime = fmt.Sprintf(
+				"{%s,}",
+				formatDuration(comp.PenaltyTime),
+			)
+		} else {
+			penaltyTime = fmt.Sprintf(
+				"{%s, %s}",
+				formatDuration(comp.PenaltyTime),
+				fmt.Sprintf("%.3f", float64(repo.cfg.PenaltyLen) / comp.PenaltyTime.Seconds()),
+			)
+		}
+
 		builder.WriteString(
 			fmt.Sprintf(
-				"[%s] %d [%s] {%s, %s} %d/%d",
+				"[%s] %d [%s] %s %d/%d",
 				totalTime,
 				comp.ID,
 				laps.String(),
-				formatDuration(comp.PenaltyTime),
-				fmt.Sprintf("%.3f", float64(repo.cfg.PenaltyLen) / comp.PenaltyTime.Seconds()),
+				penaltyTime,
 				comp.Hits,
 				comp.Shots,
 			),
